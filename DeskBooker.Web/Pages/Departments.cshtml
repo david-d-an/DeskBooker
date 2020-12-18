@@ -1,0 +1,30 @@
+﻿@page
+@model DepartmentsModel
+@{
+  ViewData["Title"] = "Departments";
+}
+
+<h1 class="display-4">Departments pulled from MySql</h1>
+
+
+<hr />
+
+<table class="table table-striped table-bordered dt-responsive nowrap">
+  <thead class="thead-light">
+    <tr>
+      <th>Dept Id</th>
+      <th>Dept Name</th>
+    </tr>
+  </thead>
+  <tbody>
+    @foreach (var dept in Model.deapartments)
+    {
+      <tr>
+        <td>@dept.dept_no</td>
+        <td>@dept.dept_name</td>
+      </tr>
+    }
+  </tbody>
+</table>
+
+
