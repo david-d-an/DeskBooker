@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 
-namespace DeskBooker.DataAccess.Security
+namespace DeskBooker.Core.Security
 {
     public class AesCryptoUtil: IAesCryptoUtil
     {

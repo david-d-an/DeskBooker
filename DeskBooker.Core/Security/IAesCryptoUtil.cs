@@ -1,4 +1,4 @@
-namespace DeskBooker.DataAccess.Security
+namespace DeskBooker.Core.Security
 {
     public interface IAesCryptoUtil
     {

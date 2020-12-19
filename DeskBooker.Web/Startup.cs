@@ -2,7 +2,7 @@ using DeskBooker.Core.DataInterface;
 using DeskBooker.Core.Processor;
 using DeskBooker.DataAccess.Contexts;
 using DeskBooker.DataAccess.Repositories;
-using DeskBooker.DataAccess.Security;
+using DeskBooker.Core.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.Sqlite;
@@ -27,10 +27,10 @@ namespace DeskBooker.Web
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
     {
-      services.AddSingleton<IAesCryptoUtil, AesCryptoUtil>();
-      var sp = services.BuildServiceProvider();
-      var cryptoUtil = (IAesCryptoUtil)sp.GetService(typeof(IAesCryptoUtil));
-      // var cryptoUtil = new AesCryptoUtil();
+      // services.AddSingleton<IAesCryptoUtil, AesCryptoUtil>();
+      // var sp = services.BuildServiceProvider();
+      // var cryptoUtil = (IAesCryptoUtil)sp.GetService(typeof(IAesCryptoUtil));
+      var cryptoUtil = new AesCryptoUtil();
        
       var encConStringSqlite = Configuration.GetConnectionString("SqlLiteConnection");
       var connStringSqlite = cryptoUtil.Decrypt(encConStringSqlite);
