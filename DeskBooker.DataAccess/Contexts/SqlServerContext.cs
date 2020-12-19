@@ -17,8 +17,6 @@ namespace DeskBooker.DataAccess.Contexts
         {    
         }
 
-        public DbSet<Department> Departments { get; set; }
-
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             SeedData(modelBuilder);

@@ -1,65 +1,264 @@
 using System;
-using System.Collections.Generic;
-using DeskBooker.Core.Domain;
+using DeskBooker.Core.Models;
 using Microsoft.EntityFrameworkCore;
-// using MySql.Data.MySqlClient;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace DeskBooker.DataAccess.Contexts
 {
-    public class MySqlContext: DbContext
+    public partial class MySqlContext : DbContext
     {
-        public string ConnectionString { get; set; }    
-    
-        public MySqlContext() : base()
+        public MySqlContext()
         {
         }
 
-        public MySqlContext(DbContextOptions<MySqlContext> options) : base(options)
-        {    
+        public MySqlContext(DbContextOptions<MySqlContext> options)
+            : base(options)
+        {
         }
 
-        public DbSet<Department> Departments { get; set; }
+        public virtual DbSet<CurrentDeptEmp> CurrentDeptEmp { get; set; }
+        public virtual DbSet<Departments> Departments { get; set; }
+        public virtual DbSet<DeptEmp> DeptEmp { get; set; }
+        public virtual DbSet<DeptEmpLatestDate> DeptEmpLatestDate { get; set; }
+        public virtual DbSet<DeptManager> DeptManager { get; set; }
+        public virtual DbSet<Employees> Employees { get; set; }
+        public virtual DbSet<Salaries> Salaries { get; set; }
+        public virtual DbSet<Titles> Titles { get; set; }
+
+        // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        // {
+        //     if (!optionsBuilder.IsConfigured)
+        //     {
+        //         // warning To protect potentially sensitive information in your connection string, you should move it out of source code. 
+        //         // See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
+        //         optionsBuilder.UseMySQL("server=mycompany.cniwlvrfgzdc.us-east-1.rds.amazonaws.com;uid=appuser;password=Soil9303;port=3306;database=employees;");
+        //     }
+        // }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            SeedData(modelBuilder);
+            modelBuilder.Entity<CurrentDeptEmp>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("current_dept_emp");
+
+                entity.Property(e => e.DeptNo)
+                    .IsRequired()
+                    .HasColumnName("dept_no")
+                    .HasMaxLength(4)
+                    .IsFixedLength();
+
+                entity.Property(e => e.EmpNo).HasColumnName("emp_no");
+
+                entity.Property(e => e.FromDate)
+                    .HasColumnName("from_date")
+                    .HasColumnType("date");
+
+                entity.Property(e => e.ToDate)
+                    .HasColumnName("to_date")
+                    .HasColumnType("date");
+            });
+
+            modelBuilder.Entity<Departments>(entity =>
+            {
+                entity.HasKey(e => e.DeptNo)
+                    .HasName("PRIMARY");
+
+                entity.ToTable("departments");
+
+                entity.HasIndex(e => e.DeptName)
+                    .HasName("dept_name")
+                    .IsUnique();
+
+                entity.Property(e => e.DeptNo)
+                    .HasColumnName("dept_no")
+                    .HasMaxLength(4)
+                    .IsFixedLength();
+
+                entity.Property(e => e.DeptName)
+                    .IsRequired()
+                    .HasColumnName("dept_name")
+                    .HasMaxLength(40);
+            });
+
+            modelBuilder.Entity<DeptEmp>(entity =>
+            {
+                entity.HasKey(e => new { e.EmpNo, e.DeptNo })
+                    .HasName("PRIMARY");
+
+                entity.ToTable("dept_emp");
+
+                entity.HasIndex(e => e.DeptNo)
+                    .HasName("dept_no");
+
+                entity.Property(e => e.EmpNo).HasColumnName("emp_no");
+
+                entity.Property(e => e.DeptNo)
+                    .HasColumnName("dept_no")
+                    .HasMaxLength(4)
+                    .IsFixedLength();
+
+                entity.Property(e => e.FromDate)
+                    .HasColumnName("from_date")
+                    .HasColumnType("date");
+
+                entity.Property(e => e.ToDate)
+                    .HasColumnName("to_date")
+                    .HasColumnType("date");
+
+                entity.HasOne(d => d.DeptNoNavigation)
+                    .WithMany(p => p.DeptEmp)
+                    .HasForeignKey(d => d.DeptNo)
+                    .HasConstraintName("dept_emp_ibfk_2");
+
+                entity.HasOne(d => d.EmpNoNavigation)
+                    .WithMany(p => p.DeptEmp)
+                    .HasForeignKey(d => d.EmpNo)
+                    .HasConstraintName("dept_emp_ibfk_1");
+            });
+
+            modelBuilder.Entity<DeptEmpLatestDate>(entity =>
+            {
+                entity.HasNoKey();
+
+                entity.ToView("dept_emp_latest_date");
+
+                entity.Property(e => e.EmpNo).HasColumnName("emp_no");
+
+                entity.Property(e => e.FromDate)
+                    .HasColumnName("from_date")
+                    .HasColumnType("date");
+
+                entity.Property(e => e.ToDate)
+                    .HasColumnName("to_date")
+                    .HasColumnType("date");
+            });
+
+            modelBuilder.Entity<DeptManager>(entity =>
+            {
+                entity.HasKey(e => new { e.EmpNo, e.DeptNo })
+                    .HasName("PRIMARY");
+
+                entity.ToTable("dept_manager");
+
+                entity.HasIndex(e => e.DeptNo)
+                    .HasName("dept_no");
+
+                entity.Property(e => e.EmpNo).HasColumnName("emp_no");
+
+                entity.Property(e => e.DeptNo)
+                    .HasColumnName("dept_no")
+                    .HasMaxLength(4)
+                    .IsFixedLength();
+
+                entity.Property(e => e.FromDate)
+                    .HasColumnName("from_date")
+                    .HasColumnType("date");
+
+                entity.Property(e => e.ToDate)
+                    .HasColumnName("to_date")
+                    .HasColumnType("date");
+
+                entity.HasOne(d => d.DeptNoNavigation)
+                    .WithMany(p => p.DeptManager)
+                    .HasForeignKey(d => d.DeptNo)
+                    .HasConstraintName("dept_manager_ibfk_2");
+
+                entity.HasOne(d => d.EmpNoNavigation)
+                    .WithMany(p => p.DeptManager)
+                    .HasForeignKey(d => d.EmpNo)
+                    .HasConstraintName("dept_manager_ibfk_1");
+            });
+
+            modelBuilder.Entity<Employees>(entity =>
+            {
+                entity.HasKey(e => e.EmpNo)
+                    .HasName("PRIMARY");
+
+                entity.ToTable("employees");
+
+                entity.Property(e => e.EmpNo).HasColumnName("emp_no");
+
+                entity.Property(e => e.BirthDate)
+                    .HasColumnName("birth_date")
+                    .HasColumnType("date");
+
+                entity.Property(e => e.FirstName)
+                    .IsRequired()
+                    .HasColumnName("first_name")
+                    .HasMaxLength(14);
+
+                entity.Property(e => e.Gender)
+                    .IsRequired()
+                    .HasColumnName("gender")
+                    .HasColumnType("enum('M','F')");
+
+                entity.Property(e => e.HireDate)
+                    .HasColumnName("hire_date")
+                    .HasColumnType("date");
+
+                entity.Property(e => e.LastName)
+                    .IsRequired()
+                    .HasColumnName("last_name")
+                    .HasMaxLength(16);
+            });
+
+            modelBuilder.Entity<Salaries>(entity =>
+            {
+                entity.HasKey(e => new { e.EmpNo, e.FromDate })
+                    .HasName("PRIMARY");
+
+                entity.ToTable("salaries");
+
+                entity.Property(e => e.EmpNo).HasColumnName("emp_no");
+
+                entity.Property(e => e.FromDate)
+                    .HasColumnName("from_date")
+                    .HasColumnType("date");
+
+                entity.Property(e => e.Salary).HasColumnName("salary");
+
+                entity.Property(e => e.ToDate)
+                    .HasColumnName("to_date")
+                    .HasColumnType("date");
+
+                entity.HasOne(d => d.EmpNoNavigation)
+                    .WithMany(p => p.Salaries)
+                    .HasForeignKey(d => d.EmpNo)
+                    .HasConstraintName("salaries_ibfk_1");
+            });
+
+            modelBuilder.Entity<Titles>(entity =>
+            {
+                entity.HasKey(e => new { e.EmpNo, e.Title, e.FromDate })
+                    .HasName("PRIMARY");
+
+                entity.ToTable("titles");
+
+                entity.Property(e => e.EmpNo).HasColumnName("emp_no");
+
+                entity.Property(e => e.Title)
+                    .HasColumnName("title")
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.FromDate)
+                    .HasColumnName("from_date")
+                    .HasColumnType("date");
+
+                entity.Property(e => e.ToDate)
+                    .HasColumnName("to_date")
+                    .HasColumnType("date");
+
+                entity.HasOne(d => d.EmpNoNavigation)
+                    .WithMany(p => p.Titles)
+                    .HasForeignKey(d => d.EmpNo)
+                    .HasConstraintName("titles_ibfk_1");
+            });
+
+            OnModelCreatingPartial(modelBuilder);
         }
 
-        private void SeedData(ModelBuilder modelBuilder)
-        {
-            // modelBuilder.Entity<Department>().HasData(
-            //     new Department { dept_no = 1, dept_name = "Dept 1" },
-            //     new Department { dept_no = 2, dept_name = "Dept 2" }
-            // );
-        }
-
-        // private MySqlConnection GetConnection()    
-        // {    
-        //     return new MySqlConnection(ConnectionString);    
-        // } 
-
-        // public List<Department> GetDepartments()  
-        // {  
-        //     List<Department> list = new List<Department>();  
-  
-        //     using (MySqlConnection conn = GetConnection())  
-        //     {  
-        //         conn.Open();  
-        //         MySqlCommand cmd = new MySqlCommand("select * from departments", conn);  
-        
-        //         using (var reader = cmd.ExecuteReader())  
-        //         {  
-        //             while (reader.Read())  
-        //             {  
-        //                 list.Add(new Department()  
-        //                 {
-        //                     dept_no =  reader["dept_no"].ToString(),
-        //                     dept_name = reader["dept_name"].ToString()
-        //                 });  
-        //             }  
-        //         }  
-        //     }  
-        //     return list;  
-        // } 
+        partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
     }
 }

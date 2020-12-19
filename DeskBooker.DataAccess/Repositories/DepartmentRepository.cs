@@ -1,21 +1,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using DeskBooker.Core.DataInterface;
-using DeskBooker.Core.Domain;
+using DeskBooker.Core.Models;
 using DeskBooker.DataAccess.Contexts;
 
 namespace DeskBooker.DataAccess.Repositories
 {
-    public class EmployeeRepository : IEmployeeRepository
+    public class DepartmentRepository : IDepartmentRepository
     {
         private readonly MySqlContext _context;
 
-        public EmployeeRepository(MySqlContext context)
+        public DepartmentRepository(MySqlContext context)
         {
-        _context = context;
+            _context = context;
         }
 
-        public IEnumerable<Department> GetAllDepartments()
+        public IEnumerable<Departments> GetAllDepartments()
         {
         return _context.Departments.ToList();
         }

@@ -1,24 +1,24 @@
 ﻿using System.Collections.Generic;
 using DeskBooker.Core.DataInterface;
-using DeskBooker.Core.Domain;
+using DeskBooker.Core.Models;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace DeskBooker.Web.Pages
 {
   public class DepartmentsModel : PageModel
   {
-    private readonly IEmployeeRepository _employeeRepository;
+    private readonly IDepartmentRepository _departmentRepository;
 
-    public DepartmentsModel(IEmployeeRepository employeeRepository)
+    public DepartmentsModel(IDepartmentRepository departmentRepository)
     {
-      _employeeRepository = employeeRepository;
+      _departmentRepository = departmentRepository;
     }
 
-    public IEnumerable<Department> deapartments { get; set; }
+    public IEnumerable<Departments> deapartments { get; set; }
 
     public void OnGet()
     {
-      deapartments = _employeeRepository.GetAllDepartments();
+      deapartments = _departmentRepository.GetAllDepartments();
     }
   }
 }

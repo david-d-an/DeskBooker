@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
 using System.Data.SqlClient;
+using Microsoft.EntityFrameworkCore.Design;
 
 namespace DeskBooker.Web
 {
@@ -57,7 +58,9 @@ namespace DeskBooker.Web
       );
       EnsureDatabaseExists<MySqlContext>(connStrMySql);
 
-      services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+
+      services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+      services.AddScoped<IDeptManagerRepository, DeptManagerRepository>();
       // services.AddTransient<IEmployeeRepository, EmployeeRepository>();
 
       services.AddRazorPages();
