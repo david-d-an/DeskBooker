@@ -5,11 +5,10 @@ namespace DeskBooker.DataAccess.Contexts
 {
   public class SQLiteContext : DbContext
   {
-    public SQLiteContext() : base()
-    {
-    }
+    public SQLiteContext() : base() { }
 
-    public SQLiteContext(DbContextOptions<SQLiteContext> options) : base(options)
+    public SQLiteContext(DbContextOptions<SQLiteContext> options)
+        : base(options)
     {
     }
 

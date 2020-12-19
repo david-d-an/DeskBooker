@@ -5,16 +5,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DeskBooker.DataAccess.Contexts
 {
-    public class SqlServerContext: DbContext
+    public class SqlServerContext : DbContext
     {
-        public string ConnectionString { get; set; }    
-    
-        public SqlServerContext() : base()
-        {
-        }
+        public string ConnectionString { get; set; }
 
-        public SqlServerContext(DbContextOptions<SqlServerContext> options) : base(options)
-        {    
+        public SqlServerContext() : base() { }
+
+        public SqlServerContext(DbContextOptions<SqlServerContext> options)
+            : base(options)
+        {
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

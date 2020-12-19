@@ -7,10 +7,8 @@ namespace DeskBooker.DataAccess.Contexts
 {
     public partial class MySqlContext : DbContext
     {
-        public MySqlContext()
-        {
-        }
-
+        public MySqlContext(): base() { }
+        
         public MySqlContext(DbContextOptions<MySqlContext> options)
             : base(options)
         {
