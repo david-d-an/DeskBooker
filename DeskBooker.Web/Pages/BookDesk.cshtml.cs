@@ -4,6 +4,7 @@ using DeskBooker.Core.Domain;
 using DeskBooker.Core.Processor;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
 
 namespace DeskBooker.Web.Pages
 {
@@ -12,10 +13,14 @@ namespace DeskBooker.Web.Pages
     [BindProperty]
     public DeskBookingRequest DeskBookingRequest { get; set; }
     private IDeskBookingRequestProcessor _deskBookingRequestProcessor;
+    private ILogger<BookDeskModel> _logger;
 
-    public BookDeskModel(IDeskBookingRequestProcessor deskBookingRequestProcessor)
+    public BookDeskModel(
+      IDeskBookingRequestProcessor deskBookingRequestProcessor,
+      ILogger<BookDeskModel> logger)
     {
         this._deskBookingRequestProcessor = deskBookingRequestProcessor;
+        this._logger = logger;
     }
 
     public IActionResult OnPost()

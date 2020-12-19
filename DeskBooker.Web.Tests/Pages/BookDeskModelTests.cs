@@ -4,6 +4,7 @@ using DeskBooker.Core.Domain;
 using DeskBooker.Core.Processor;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -12,14 +13,17 @@ namespace DeskBooker.Web.Pages
   public class BookDeskModelTests
   {
     private Mock<IDeskBookingRequestProcessor> _processorMock;
+    private Mock<ILogger<BookDeskModel>> _loggerMock;
     private BookDeskModel _bookDeskModel;
     private DeskBookingResult _deskBookingResult;
 
     public BookDeskModelTests()
     {
       _processorMock = new Mock<IDeskBookingRequestProcessor>();
-      _bookDeskModel = new BookDeskModel(_processorMock.Object) {
-        DeskBookingRequest = new DeskBookingRequest{
+      _loggerMock = new Mock<ILogger<BookDeskModel>>();
+      _bookDeskModel = new BookDeskModel(
+          _processorMock.Object, _loggerMock.Object) {
+          DeskBookingRequest = new DeskBookingRequest{
           FirstName = "John",
           LastName= "Smith",
           Email = "jsmith@contoso.com",

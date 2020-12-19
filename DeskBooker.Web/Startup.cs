@@ -11,8 +11,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using System;
-using System.Data.SqlClient;
-using Microsoft.EntityFrameworkCore.Design;
+// using System.Data.SqlClient;
+// using Microsoft.EntityFrameworkCore.Design;
+// using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 
 namespace DeskBooker.Web
 {
@@ -64,6 +66,8 @@ namespace DeskBooker.Web
       // services.AddTransient<IEmployeeRepository, EmployeeRepository>();
 
       services.AddRazorPages();
+
+      services.AddLogging();
     }
 
     // private static void EnsureDatabaseExists(SqliteConnection connection)
@@ -89,16 +93,24 @@ namespace DeskBooker.Web
           builder.UseSqlServer(connectionString);
         }
 
-        using (
-          var context = (T)Activator.CreateInstance(typeof(T), builder.Options))
-          context.Database.EnsureCreated();
+        using var context = (T)Activator.CreateInstance(typeof(T), 
+            new object[] { builder.Options });
+        context.Database.EnsureCreated();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(
+        IApplicationBuilder app, 
+        IWebHostEnvironment env,
+        ILoggerFactory loggerFactory)
     {
+      var logFilleLocation = Configuration
+          .GetValue<string>("Logging:Location:File");
+      loggerFactory.AddFile(logFilleLocation);
+
       /* Service Provider is provide automatically                       */
       /* after service registration is finished in ConfigureServices()   */
+
       // var serviceProvider = app.ApplicationServices;
       // var cryptoUtil = serviceProvider.GetService<IAesCryptoUtil>();
       // var encStr = cryptoUtil.Encrypt("example");

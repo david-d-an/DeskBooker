@@ -1,5 +1,6 @@
 ﻿using DeskBooker.Core.DataInterface;
 using DeskBooker.Core.Domain;
+using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
@@ -7,6 +8,12 @@ namespace DeskBooker.Web.Pages
 {
   public class DesksModelTests
   {
+    private Mock<ILogger<DesksModel>> _loggerMock;
+
+    public DesksModelTests() {
+      this._loggerMock = new Mock<ILogger<DesksModel>>();
+    }
+
     [Fact]
     public void ShouldGetAllDesks()
     {
@@ -22,7 +29,9 @@ namespace DeskBooker.Web.Pages
       deskRepositoryMock.Setup(x => x.GetAll())
           .Returns(desks);
 
-      var desksModel = new DesksModel(deskRepositoryMock.Object);
+      var desksModel = new DesksModel(
+          deskRepositoryMock.Object,
+          _loggerMock.Object);
 
       // Act
       desksModel.OnGet();
