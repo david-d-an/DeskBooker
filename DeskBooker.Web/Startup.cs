@@ -2,6 +2,7 @@ using DeskBooker.Core.DataInterface;
 using DeskBooker.Core.Processor;
 using DeskBooker.DataAccess.Contexts;
 using DeskBooker.DataAccess.Repositories;
+using DeskBooker.DataAccess.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Data.Sqlite;
@@ -26,13 +27,18 @@ namespace DeskBooker.Web
     // This method gets called by the runtime. Use this method to add services to the container.
     public void ConfigureServices(IServiceCollection services)
     {
-      services.AddRazorPages();
-      var connectionString = Configuration.GetConnectionString("CurrentDataSource");
+      services.AddSingleton<IAesCryptoUtil, AesCryptoUtil>();
+      var sp = services.BuildServiceProvider();
+      var cryptoUtil = (IAesCryptoUtil)sp.GetService(typeof(IAesCryptoUtil));
+      // var cryptoUtil = new AesCryptoUtil();
+       
+      var encConStringSqlite = Configuration.GetConnectionString("SqlLiteConnection");
+      var connStringSqlite = cryptoUtil.Decrypt(encConStringSqlite);
 
       services.AddDbContext<SQLiteContext>(builder =>
-          builder.UseSqlite(connectionString)
+          builder.UseSqlite(connStringSqlite)
       );
-      EnsureDatabaseExists<SQLiteContext>(connectionString);
+      EnsureDatabaseExists<SQLiteContext>(connStringSqlite);
 
       services.AddScoped<IDeskRepository, DeskRepository>();
       services.AddScoped<IDeskBookingRepository, DeskBookingRepository>();
@@ -43,7 +49,9 @@ namespace DeskBooker.Web
       // services.AddSingleton<IDeskBookingRepository, DeskBookingRepository>();
 
       // Make MySql Connection Service
-      var connStrMySql = Configuration.GetConnectionString("MySqlConnection");
+      var encConnStrMySql = Configuration.GetConnectionString("MySqlConnection");
+      var connStrMySql = cryptoUtil.Decrypt(encConnStrMySql);
+
       services.AddDbContext<MySqlContext>(builder =>                   
           builder.UseMySQL(connStrMySql)
       );
@@ -51,6 +59,8 @@ namespace DeskBooker.Web
 
       services.AddScoped<IEmployeeRepository, EmployeeRepository>();
       // services.AddTransient<IEmployeeRepository, EmployeeRepository>();
+
+      services.AddRazorPages();
     }
 
     // private static void EnsureDatabaseExists(SqliteConnection connection)
@@ -76,14 +86,20 @@ namespace DeskBooker.Web
           builder.UseSqlServer(connectionString);
         }
 
-        using (var context = 
-          (T)(Activator.CreateInstance(typeof(T), new object[] { builder.Options })))
-          ((T)context).Database.EnsureCreated();
+        using (
+          var context = (T)Activator.CreateInstance(typeof(T), builder.Options))
+          context.Database.EnsureCreated();
     }
 
     // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
+      /* Service Provider is provide automatically                       */
+      /* after service registration is finished in ConfigureServices()   */
+      // var serviceProvider = app.ApplicationServices;
+      // var cryptoUtil = serviceProvider.GetService<IAesCryptoUtil>();
+      // var encStr = cryptoUtil.Encrypt("example");
+
       if (env.IsDevelopment())
       {
         app.UseDeveloperExceptionPage();
